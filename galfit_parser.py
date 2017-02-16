@@ -33,12 +33,15 @@ class GalfitComponent(object):
             #we know that val is a string formatted as 'result +/- uncertainty'
             #if val is fixed in GalFit, it is formatted as '[result]'
             paramsplit = param.split('_')
+            
+            # If there's some numerical error, should output a warning (*)
+            
             if '[' in val:     #fixed parameter
-                val = val.translate(None,'[]')
+                val = val.translate(None,'[]*')
                 setattr(self,paramsplit[1].lower(),float(val))
                 setattr(self,paramsplit[1].lower() + '_err',None)
             else:              #normal variable parameter
-                val = val.split()
+                val = val.translate(None,'*').split()
                 setattr(self,paramsplit[1].lower(),float(val[0]))
                 setattr(self,paramsplit[1].lower() + '_err',float(val[2]))
             

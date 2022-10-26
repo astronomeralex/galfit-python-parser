@@ -2,6 +2,9 @@
 # This module will read in the galfit best fit values and uncertainties
 #
 
+import sys
+pyvers = sys.version_info[0]
+
 from astropy.io import fits
 '''
   to create an object containing galfit results, use obj = GalfitResult('<output block fits file>')
@@ -37,11 +40,21 @@ class GalfitComponent(object):
             # If there's some numerical error, should output a warning (*)
 
             if '[' in val:     #fixed parameter
-                val = val.translate(None,'[]*')
+                if (pyvers == 2):
+                    val = val.translate(None,'[]*')
+                elif (pyvers == 3):
+                    val = val.translate(str.maketrans('', '', '[]*'))
+                else:
+                    raise ValueError("python version {} not recognized!".format(pyvers))
                 setattr(self,paramsplit[1].lower(),float(val))
                 setattr(self,paramsplit[1].lower() + '_err',None)
             else:              #normal variable parameter
-                val = val.translate(None,'*').split()
+                if (pyvers == 2):
+                    val = val.translate(None,'*').split()
+                elif (pyvers == 3):
+                    val = val.translate(str.maketrans('', '', '*')).split()
+                else:
+                    raise ValueError("python version {} not recognized!".format(pyvers))
                 setattr(self,paramsplit[1].lower(),float(val[0]))
                 setattr(self,paramsplit[1].lower() + '_err',float(val[2]))
 
@@ -86,6 +99,9 @@ class GalfitResults(object):
         self.nfree = galfitheader["NFREE"]
         self.reduced_chisq = galfitheader["CHI2NU"]
 
+        #read in galfit flags:
+        self.galfit_flags = galfitheader["FLAGS"].split(" ")
+        
         #find the number of components
         num_components = 1 #already verified above
         while True:

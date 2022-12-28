@@ -48,6 +48,16 @@ class GalfitComponent(object):
                     raise ValueError("python version {} not recognized!".format(pyvers))
                 setattr(self,paramsplit[1].lower(),float(val))
                 setattr(self,paramsplit[1].lower() + '_err',None)
+            elif paramsplit[1].upper() in ['TINNR', 'TOUTR', 'INNER', 'OUTER']:
+                # Variables dealing with truncation settings / parameters
+                if (pyvers == 2):
+                    val = val.translate(None,'*').split()
+                elif (pyvers == 3):
+                    val = val.translate(str.maketrans('', '', '*')).split()
+                else:
+                    raise ValueError("python version {} not recognized!".format(pyvers))
+                setattr(self,paramsplit[1].lower(),float(val[0]))
+
             else:              #normal variable parameter
                 if (pyvers == 2):
                     val = val.translate(None,'*').split()

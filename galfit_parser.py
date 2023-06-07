@@ -26,6 +26,9 @@ class GalfitComponent(object):
 
         self.component_type = galfitheader["COMP_" + str(component_number)]
         self.component_number = component_number
+
+        flagged_numerical_params = []
+
         headerkeys = [i for i in galfitheader.keys()]
         comp_params = []
         for i in headerkeys:
@@ -38,6 +41,8 @@ class GalfitComponent(object):
             paramsplit = param.split('_')
 
             # If there's some numerical error, should output a warning (*)
+            if '*' in val:
+                flagged_numerical_params.append(paramsplit[1].lower())
 
             if '[' in val:     #fixed parameter
                 if (pyvers == 2):
@@ -57,7 +62,6 @@ class GalfitComponent(object):
                 else:
                     raise ValueError("python version {} not recognized!".format(pyvers))
                 setattr(self,paramsplit[1].lower(),float(val[0]))
-
             else:              #normal variable parameter
                 if (pyvers == 2):
                     val = val.translate(None,'*').split()
@@ -67,6 +71,11 @@ class GalfitComponent(object):
                     raise ValueError("python version {} not recognized!".format(pyvers))
                 setattr(self,paramsplit[1].lower(),float(val[0]))
                 setattr(self,paramsplit[1].lower() + '_err',float(val[2]))
+
+
+        self.flagged_numerical_params = flagged_numerical_params
+
+
 
 class GalfitResults(object):
     """
